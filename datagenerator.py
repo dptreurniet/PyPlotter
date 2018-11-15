@@ -36,7 +36,7 @@ def sequence_intcanlog(file, dataset_selection=None, track_time=False):
         # Lastly, intersect these indices to find the message which are both in the past and not send yet
         send_now = np.intersect1d(past, to_be_sent)
 
-        send_messages(send_now)
+        send_messages(messages[:, send_now])
 
         # Set sent flag to True for messages which were just sent
         message_sent[send_now] = True
@@ -46,4 +46,6 @@ def sequence_intcanlog(file, dataset_selection=None, track_time=False):
 
 def send_messages(messages):
     # Send messages to destination
-    print('sending %s messages' % messages.shape)
+        for i in range(messages.shape[1]):
+            print(messages[:, i])
+            time.sleep(0.1)
