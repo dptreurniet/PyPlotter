@@ -83,6 +83,8 @@ def load_intcanlog(file, dataset_selection=None, track_time=False):
 
     # Populate data array
     for i in range(n_datasets):
+
+        # TODO: Only GPS requires float64
         data[i]['source'] = 'SD'
         data[i]['title'] = datasets[i]['name']
         data[i]['UID'] = datasets[i]['uid']
@@ -152,5 +154,4 @@ def load_intcanlog(file, dataset_selection=None, track_time=False):
     data[:] = data[np.argsort(data['title'])]
     time_tracker.toc('Sorting data')
 
-    # Append data to
     return data

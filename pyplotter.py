@@ -3,4 +3,6 @@
 from datastore import DataStore
 from datagenerator import sequence_intcanlog
 
-sequence_intcanlog('data/test_data_short.mat')
+data_store = DataStore()
+
+data_store.load_file('data/test_data.mat')
