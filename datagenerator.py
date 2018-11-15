@@ -49,3 +49,5 @@ def send_messages(messages):
         for i in range(messages.shape[1]):
             print(messages[:, i])
             time.sleep(0.1)
+
+sequence_intcanlog('data/test_data_short')
