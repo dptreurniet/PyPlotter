@@ -164,8 +164,17 @@ class DataStore:
             # Apply offset and scaling
             data[i]['yData'] = datasets[i]['offset'] + datasets[i]['scale']*data[i]['yData']
 
+            # Make sure yData has the correct shape. Transpose if necessary
+            if np.ndim(data[i]['yData']) != 0:
+                if data[i]['yData'].shape[0] == 1 and data[i]['yData'].shape[1] > 1:
+                    data[i]['yData'] = np.transpose(data[i]['yData'])
+
             # Remove duplicates
-            data[i]['xData'] = np.unique(data[i]['xData'])
-            data[i]['yData'] = np.unique(data[i]['yData'])
+            data[i]['xData'], unique_indices = np.unique(data[i]['xData'], return_index=True)
+            data[i]['yData'] = data[i]['yData'][unique_indices]
 
         self.time_tracker.toc('Populating data')
+
+        print(data[100]['title'])
+        plt.plot(data[100]['xData'], data[100]['yData'])
+        plt.show()
