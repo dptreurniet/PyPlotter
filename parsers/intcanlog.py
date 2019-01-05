@@ -5,7 +5,7 @@ import scipy.io as sio
 from helpers import list_tools
 from helpers import uid_tools
 
-from datafile import DataFile
+from data_classes import DataFile
 from datetime import datetime
 
 

@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class DataFile:
     def __init__(self, filename, raw_data):
         self.filename= filename.split('/')[-1]
