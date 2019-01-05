@@ -2,21 +2,19 @@ import numpy as np
 from numpy.lib import recfunctions
 import scipy.io as sio
 
-from helpers import time_tracker
 from helpers import list_tools
 from helpers import uid_tools
 
 from datafile import DataFile
+from datetime import datetime
 
-def load_file(file, track_time, dataset_selection=None):
 
-    tt = time_tracker.TimeTracker(print_process = False)
+def load_file(file, dataset_selection=None, print_progress=False):
 
-    print('\nLoading file %s' % (file))
-    tt.tic()
+    start_time = datetime.now()
+    print('\nLoading file %s... ' % file, end='')
 
     raw_data = sio.loadmat(file)
-    tt.toc('Load MAT file')
 
     # Determine number of messages
     n_messages = raw_data['messages'].shape[1]
@@ -25,36 +23,34 @@ def load_file(file, track_time, dataset_selection=None):
     message_ids = np.reshape(np.transpose(raw_data['messages'][0:2, :]), 2*n_messages)
     # Convert from uint8 to uint16 to obtain IDs
     message_ids.dtype = np.uint16
-    tt.toc('Convert IDs')
 
     # Get timestamps from the raw data
     message_dt = np.reshape(np.transpose(raw_data['messages'][2:4, :]), 2*n_messages)
     message_dt.dtype = np.int16
     # Convert from dt values to absolute timestamps
     message_timestamps = 0.001*np.cumsum(message_dt)
-    tt.toc("Convert timestamps")
 
     # Filter datasets with plot-able datatypes
     datasets = raw_data['datasets'][raw_data['datasets']['datatype'] <= 9]
     n_datasets = datasets.shape[0]
-    print('%s datasets found' % (n_datasets))
+    if print_progress:
+        print('%s datasets found' % n_datasets)
 
     # Run through the dataset and convert 1x1 numpy arrays to normal datatypes
     for field in datasets.dtype.names:
         for i in range(len(datasets[field])):
             datasets[field][i] = list_tools.simplify_list(datasets[field][i])
-    tt.toc("Simplify numpy arrays")
 
     # Check whether UIDs are already present in dataset. If not, generate them
     if 'uid' not in datasets.dtype.names:
-        print('No UID found. Performing look-up')
+        if print_progress:
+            print('No UID found. Performing look-up')
 
         # Generate UID list with generator expression using encoding function of uid_tools
         uids = np.fromiter((uid_tools.encode(datasets['name'][i]) for i in range(datasets.shape[0])), dtype=np.uint32)
 
         # Append UID field to existing datasets structured array
         datasets = recfunctions.append_fields(datasets, 'uid', uids)
-    tt.toc("Generate UIDs")
 
     # If a dataset_selection is given, only select these
     if dataset_selection:
@@ -77,9 +73,9 @@ def load_file(file, track_time, dataset_selection=None):
     messages_per_dataset = messages_per_dataset[datasets_to_keep]
 
     # Removing empty datasets
-    print("%s empty datasets removed"%(n_datasets - datasets.shape[0]))
+    if print_progress:
+        print("%s empty datasets removed" % n_datasets - datasets.shape[0])
     n_datasets = datasets.shape[0]
-    tt.toc("Remove empty datasets")
 
     # Create data vector
     data_dtype = np.dtype({'names': ['source', 'title', 'UID',
@@ -131,7 +127,6 @@ def load_file(file, track_time, dataset_selection=None):
             raw_ydata.dtype = datatype_conversion[datatype]
         data[i]['yData'] = raw_ydata
 
-
         # Apply offset and scaling
         data[i]['yData'] = datasets[i]['offset'] + datasets[i]['scale']*data[i]['yData']
 
@@ -140,16 +135,19 @@ def load_file(file, track_time, dataset_selection=None):
             data[i]['yData'] = np.squeeze(np.transpose(data[i]['yData']))
 
         # Remove duplicates
-        data[i]['xData'], unique_indices = np.unique(data[i]['xData'], return_index = True)
+        data[i]['xData'], unique_indices = np.unique(data[i]['xData'], return_index=True)
         data[i]['yData'] = data[i]['yData'][unique_indices]
 
     # Sort data based on title
     data = data[np.argsort(data[:]['title'])]
-    tt.toc('Populating and sorting data')
 
     # Return data to caller
-    print('Finished loading intcanlog file')
+    if print_progress:
+        print('Finished loading intcanlog file')
 
     # Create DataFile object to return
     data_file = DataFile(file, data)
+
+    print('finished in %s seconds' % (datetime.now() - start_time).total_seconds())
+
     return data_file
