@@ -1,6 +1,6 @@
-from PySide2.QtWidgets import QTreeView, QFileSystemModel, QAbstractItemView
+from PySide2.QtWidgets import QTreeView, QAbstractItemView
 from PySide2.QtGui import QStandardItemModel, QStandardItem
-from PySide2.QtCore import QDir, QItemSelectionModel
+from PySide2.QtCore import Qt
 
 import re
 
@@ -172,6 +172,9 @@ class TreeItem(QStandardItem):
         else:
             self.type = 'system'
             self.children = []
+
+        # Make item non-editable
+        self.setEditable(False)
 
     def append_child(self, item):
         self.appendRow(item)
