@@ -3,21 +3,24 @@ import sys
 from PySide2 import QtWidgets
 
 import plotter_widgets
-import plotter_datastore
+from datastore import DataStore
+from inspector import Inspector
 
 class PyPlotter():
     def __init__(self):
-        self.data_store = plotter_datastore.DataStore(self)
-        self.data_store.load_file('data/test_data_short.mat')
+
+        self.inspector = Inspector()
+        self.inspector.add('pyplotter', self)
+
+        self.data_store = DataStore(self.inspector)
 
         self.app = QtWidgets.QApplication([])
-        self.main_gui = plotter_widgets.PyplotterGui(self)
+        self.master_gui = plotter_widgets.MasterGUI(self.inspector)
 
-        self.main_gui.show()
+        self.master_gui.show()
+        self.inspector.get('action_menu').button_load_pressed()
 
         sys.exit(self.app.exec_())
-
-    def get_datastore(self): return self.data_store
 
 if __name__ == '__main__':
     pyplotter = PyPlotter()

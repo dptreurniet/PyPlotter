@@ -6,7 +6,7 @@ from helpers import time_tracker
 from helpers import list_tools
 from helpers import uid_tools
 
-import plotter_datastore as p_datastore
+from datafile import DataFile
 
 def load_file(file, track_time, dataset_selection=None):
 
@@ -151,8 +151,5 @@ def load_file(file, track_time, dataset_selection=None):
     print('Finished loading intcanlog file')
 
     # Create DataFile object to return
-    data_file = p_datastore.DataFile(file)
-    data_file.names = data[:]['title']
-    data_file.raw_data = data
-
+    data_file = DataFile(file, data)
     return data_file

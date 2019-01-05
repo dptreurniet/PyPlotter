@@ -1,2 +1,4 @@
-from plotter_widgets.pyplotter_gui import PyplotterGui
+from plotter_widgets.master_gui import MasterGUI
 from plotter_widgets.file_browser import FileBrowser
+from plotter_widgets.action_menu import ActionMenu
+from plotter_widgets.plot_manager import PlotManager
