@@ -3,7 +3,7 @@ import numpy as np
 
 class DataFile:
     def __init__(self, filename, raw_data):
-        self.filename= filename
+        self.filename= filename.split('/')[-1]
         self.datasets = []
 
         for dataset_raw in raw_data:

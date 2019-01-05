@@ -55,7 +55,7 @@ class TreeModel(QStandardItemModel):
         for key, file in files.items():
             # Add filename to model
             parentItem = self.invisibleRootItem()
-            item_file = TreeItem(file.get_filename(), file.get_filename())
+            item_file = TreeItem(file.get_filename())
             parentItem.appendRow(item_file)
 
             # Get list of dataset titles in file

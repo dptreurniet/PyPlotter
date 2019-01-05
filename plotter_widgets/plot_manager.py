@@ -8,24 +8,14 @@ class PlotManager(QWidget):
         self.inspector = inspector
         self.inspector.add('plot_manager', self)
 
-        #self.plot = chart.QChart()
-        #self.test_series = chart.QLineSeries()
-        #self.test_series.append(1, 3)
-        #self.test_series.append(2, 4)
-        #self.test_series.append(3, 1)
-        #self.plot.addSeries(self.test_series)
-        #self.plot.setTitle('Test serie')
-        #self.plot.createDefaultAxes()
-        #self.plot_viewer = chart.QChartView(self.plot)
-
         self.layout = QGridLayout()
         self.setLayout(self.layout)
 
         self.plot_windows = []
 
-        self.setPlotLayout(1, 1)
+        self.set_plot_layout(1, 1)
 
-    def setPlotLayout(self, rows, cols):
+    def set_plot_layout(self, rows, cols):
         # Fill grid layout with new charts and viewers
         for row in range(rows):
             for col in range(cols):
