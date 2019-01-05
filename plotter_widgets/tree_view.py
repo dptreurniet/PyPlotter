@@ -35,8 +35,18 @@ class TreeView(QTreeView):
     def get_selection(self):
         selection = []
         for index in self.selectionModel.selectedIndexes():
-            selection.append(self.model.itemFromIndex(index).get_datasets())
+            selection = self.__flatten(self.model.itemFromIndex(index).get_datasets())
         return selection
+
+    def __flatten(self, lis):
+        """Given a list, possibly nested to any level, return it flattened."""
+        new_lis = []
+        for item in lis:
+            if type(item) == type([]):
+                new_lis.extend(self.__flatten(item))
+            else:
+                new_lis.append(item)
+        return new_lis
 
 class TreeModel(QStandardItemModel):
     def __init__(self, inspector):
@@ -82,7 +92,7 @@ class TreeModel(QStandardItemModel):
 
                 # Create an item for this system and make it the root
                 item_system = TreeItem(system)
-                parentItem.appendRow(item_system)
+                parentItem.append_child(item_system)
 
                 # Get all datasets that belong to this system
                 reg = re.compile(re.escape(system) + r'.*')
@@ -105,14 +115,14 @@ class TreeModel(QStandardItemModel):
 
                         # Add this subsystem to the model
                         item_subsystem = TreeItem(' '.join(subsystem.split()[2:4]))
-                        parentItem.appendRow(item_subsystem)
+                        parentItem.append_child(item_subsystem)
 
                         # Add all datasets that belong to the subsytem to the model
                         parentItem = item_subsystem
                         for subsytem_dataset in subsystem_datasets:
                             item_label = ' '.join(subsytem_dataset.split()[4:])
                             item_dataset = TreeItem(item_label, dataset=file.get_dataset(title=subsytem_dataset))
-                            parentItem.appendRow(item_dataset)
+                            parentItem.append_child(item_dataset)
                             dataset_added[subsytem_dataset] = True
 
                     # Remove already-added datasets from the list to avoid double entries
@@ -133,14 +143,14 @@ class TreeModel(QStandardItemModel):
 
                         # Add this subsystem to the model
                         item_subsystem = TreeItem(' '.join(subsystem.split()[2:3]))
-                        parentItem.appendRow(item_subsystem)
+                        parentItem.append_child(item_subsystem)
 
                         # Add all datasets that belong to the subsytem to the model
                         parentItem = item_subsystem
                         for subsytem_dataset in subsystem_datasets:
                             item_label = ' '.join(subsytem_dataset.split()[3:])
                             item_dataset = TreeItem(item_label, dataset=file.get_dataset(title=subsytem_dataset))
-                            parentItem.appendRow(item_dataset)
+                            parentItem.append_child(item_dataset)
                             dataset_added[subsytem_dataset] = True
 
                 # Get remaining datasets and add them
@@ -150,7 +160,7 @@ class TreeModel(QStandardItemModel):
                     if dataset_added[system_dataset] == False:
                         item_label = ' '.join(system_dataset.split()[2:])
                         item_dataset = TreeItem(item_label, dataset=file.get_dataset(title=system_dataset))
-                        parentItem.appendRow(item_dataset)
+                        parentItem.append_child(item_dataset)
 
 
 class TreeItem(QStandardItem):
@@ -161,8 +171,20 @@ class TreeItem(QStandardItem):
             self.type = 'dataset'
         else:
             self.type = 'system'
+            self.children = []
+
+    def append_child(self, item):
+        self.appendRow(item)
+        self.children.append(item)
+
+    def get_type(self): return self.type
 
     def get_datasets(self):
+        datasets = []
         if self.type == 'dataset':
-            return self.dataset
-        return 0
+            datasets.append(self.dataset)
+        else:
+            for child in self.children:
+                datasets.append(child.get_datasets())
+        return datasets
+
