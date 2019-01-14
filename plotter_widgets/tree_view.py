@@ -35,7 +35,8 @@ class TreeView(QTreeView):
     def get_selection(self):
         selection = []
         for index in self.selectionModel.selectedIndexes():
-            selection = self.__flatten(self.model.itemFromIndex(index).get_datasets())
+            for dataset in self.__flatten(self.model.itemFromIndex(index).get_datasets()):
+                selection.append(dataset)
         return selection
 
     def __flatten(self, lis):
@@ -69,7 +70,7 @@ class TreeModel(QStandardItemModel):
             parentItem.appendRow(item_file)
 
             # Get list of dataset titles in file
-            dataset_titles = file.get_titles()
+            dataset_titles = file.get_names()
 
             # If a selection regex is given, filter all datasets with it
             if selection_reg:
@@ -121,7 +122,7 @@ class TreeModel(QStandardItemModel):
                         parentItem = item_subsystem
                         for subsytem_dataset in subsystem_datasets:
                             item_label = ' '.join(subsytem_dataset.split()[4:])
-                            item_dataset = TreeItem(item_label, dataset=file.get_dataset(title=subsytem_dataset))
+                            item_dataset = TreeItem(item_label, dataset=file.get_dataset_by_name(subsytem_dataset))
                             parentItem.append_child(item_dataset)
                             dataset_added[subsytem_dataset] = True
 
@@ -149,7 +150,7 @@ class TreeModel(QStandardItemModel):
                         parentItem = item_subsystem
                         for subsytem_dataset in subsystem_datasets:
                             item_label = ' '.join(subsytem_dataset.split()[3:])
-                            item_dataset = TreeItem(item_label, dataset=file.get_dataset(title=subsytem_dataset))
+                            item_dataset = TreeItem(item_label, dataset=file.get_dataset_by_name(subsytem_dataset))
                             parentItem.append_child(item_dataset)
                             dataset_added[subsytem_dataset] = True
 
@@ -159,7 +160,7 @@ class TreeModel(QStandardItemModel):
                 for system_dataset in system_datasets:
                     if dataset_added[system_dataset] == False:
                         item_label = ' '.join(system_dataset.split()[2:])
-                        item_dataset = TreeItem(item_label, dataset=file.get_dataset(title=system_dataset))
+                        item_dataset = TreeItem(item_label, dataset=file.get_dataset_by_name(system_dataset))
                         parentItem.append_child(item_dataset)
 
 

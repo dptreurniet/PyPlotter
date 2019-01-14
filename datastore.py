@@ -1,5 +1,5 @@
 from parsers import intcanlog
-
+from PySide2.QtWidgets import QProgressDialog
 
 class DataStore:
     def __init__(self, inspector):
@@ -11,7 +11,7 @@ class DataStore:
     def load_file(self, filename, track_time = False):
         if filename in self.imported_files:
             print('Warning: overwriting %s' % filename)
-        data = intcanlog.load_file(filename, track_time)
+        data = intcanlog.load_file(filename, track_time, print_progress=True)
         self.imported_files[filename] = data
         self.inspector.get('tree_view').update()
 

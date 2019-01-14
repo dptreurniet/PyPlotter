@@ -15,6 +15,6 @@ class TimeTracker:
     def toc(self, process, tic=True):
         self.end_time = time.time()
         if self.print_process:
-            print('--- %s: %0.3f sec' % (process, self.end_time - self.start_time))
+            print('--- %0.3f sec: %s' % (self.end_time - self.start_time, process))
         if tic:
             self.tic()

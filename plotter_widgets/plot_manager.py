@@ -2,6 +2,8 @@ from PySide2.QtWidgets import QWidget, QGridLayout, QLayoutItem
 from PySide2.QtCharts import QtCharts
 from PySide2.QtCore import QPointF
 from PySide2.QtGui import QPainter
+from math import sqrt, floor, ceil
+import time
 
 from plotter_pop_ups import PlotLayoutDialog
 
@@ -18,32 +20,55 @@ class PlotManager(QWidget):
         self.set_plot_layout(dim=[1, 1])
 
     def set_plot_layout(self, dim=None):
-        if not dim:
-            dialog = PlotLayoutDialog()
-            if dialog.exec():
-                dim = dialog.get_new_layout()
+        # First, reset layout
+        for plot in self.plot_windows:
+            self.layout.removeWidget(plot)
 
-        new_n_plot_windows = dim[0]*dim[1]
-        if new_n_plot_windows > len(self.plot_windows):
-            for i in range(new_n_plot_windows - len(self.plot_windows)):
-                self.plot_windows.append(PlotWindow(self.inspector))
-        else:
-            self.plot_windows = self.plot_windows[:new_n_plot_windows]
+        
 
-        # Clear current layout
-        for i in reversed(range(self.layout.count())):
-            self.layout.itemAt(i).widget().setParent(None)
+        # If no dim is given, launch a dialog to enter it
+        if dim == None:
+            layoutDialog = PlotLayoutDialog()
+            result = layoutDialog.exec()
+            if result:
+                dim = layoutDialog.get_new_layout()
+                print("Setting layout to %s by %s" % (dim[0], dim[1]))
+            else:
+                return
 
-        count = 0
-        for row in range(dim[1]):
-            for col in range(dim[0]):
-                self.layout.addWidget(self.plot_windows[count], row, col)
-                count += 1
+        plot_counter = 0
+        for x in range(dim[0]):
+            for y in range(dim[1]):
+                try:
+                    self.layout.addWidget(self.plot_windows[plot_counter], x, y)
+                except IndexError:
+                    self.plot_windows.append(PlotWindow(self.inspector))
+                    self.layout.addWidget(self.plot_windows[plot_counter], x, y)
+                plot_counter += 1
+
+
+    def clear_all(self):
+        for plot in self.plot_windows:
+            pass
 
     def plot(self, datasets):
         self.plot_windows[0].clear()
         self.plot_windows[0].add_datasets(datasets)
         self.plot_windows[0].plot_line()
+
+    def N_plot(self, datasets, plot_ID=None):
+        n = len(datasets)
+
+        self.clear_all()
+
+        dim = [1, 1]
+        while dim[0]*dim[1] < n:
+            if dim[0]<dim[1]:
+                dim[0] += 1
+            else:
+                dim[1] += 1
+
+        self.set_plot_layout(dim=dim)
 
 
 class PlotWindow(QtCharts.QChartView):
@@ -86,7 +111,7 @@ class PlotWindow(QtCharts.QChartView):
                 self.chart.axisY().setTitleText('%s [%s]' % (dataset.yQuantity, dataset.yUnit))
 
             # Add title to list for title generation later
-            titles.append(dataset.title)
+            titles.append(dataset.get_name())
 
         self.chart.setTitle(self.__generate_title(titles))
 
