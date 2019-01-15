@@ -18,7 +18,7 @@ class PyPlotter():
         self.master_gui = plotter_widgets.MasterGUI(self.inspector)
 
         self.master_gui.show()
-        self.inspector.get('action_menu').button_load_pressed()
+        #self.inspector.get('action_menu').button_load_pressed()
 
         sys.exit(self.app.exec_())
 

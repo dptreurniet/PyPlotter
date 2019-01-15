@@ -1,4 +1,5 @@
 from PySide2.QtWidgets import QVBoxLayout, QGroupBox, QPushButton, QGridLayout
+from plotter_pop_ups import LoadFileDialog
 
 class ActionMenu(QGroupBox):
     def __init__(self, inspector):
@@ -34,10 +35,12 @@ class ActionMenu(QGroupBox):
         self.setLayout(self.layout)
 
     def button_load_pressed(self):
-        self.inspector.get('datastore').load_file('data/INTCANLOG2-20180818T153331-IDLE-HV-FC.mat')
+        #self.inspector.get('datastore').load_file('data/test_data_short.mat')
+        load_file_dialog = LoadFileDialog(self.inspector)
+        load_file_dialog.exec()
 
     def button_unload_pressed(self):
-        self.inspector.get('datastore').unload_file('data/INTCANLOG2-20180818T153331-IDLE-HV-FC.mat')
+        self.inspector.get('datastore').unload_file('data/test_data_short.mat')
 
     def button_1plot_pressed(self):
         selection = self.inspector.get('tree_view').get_selection()

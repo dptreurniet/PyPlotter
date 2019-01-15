@@ -24,14 +24,12 @@ class PlotManager(QWidget):
         for plot in self.plot_windows:
             self.layout.removeWidget(plot)
 
-        
-
         # If no dim is given, launch a dialog to enter it
-        if dim == None:
-            layoutDialog = PlotLayoutDialog()
-            result = layoutDialog.exec()
+        if dim is None:
+            layout_dialog = PlotLayoutDialog()
+            result = layout_dialog.exec()
             if result:
-                dim = layoutDialog.get_new_layout()
+                dim = layout_dialog.get_new_layout()
                 print("Setting layout to %s by %s" % (dim[0], dim[1]))
             else:
                 return
